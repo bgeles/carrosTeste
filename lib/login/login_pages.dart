@@ -1,4 +1,7 @@
-import 'package:carros/pages/home_page.dart';
+import 'package:carros/carro/home_page.dart';
+import 'package:carros/login/usuario.dart';
+import 'package:carros/pages/api_response.dart';
+import 'package:carros/utils/alert.dart';
 import 'package:carros/utils/nav.dart';
 import 'package:carros/widgets/app_button.dart';
 import 'package:carros/widgets/app_text.dart';
@@ -19,6 +22,8 @@ class _LoginPageState extends State<LoginPage> {
   final _tSenha = TextEditingController();
 
   final _focusSenha = FocusNode();
+
+  bool _showProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -57,10 +62,15 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(
               height: 20,
             ),
-            AppButton(
-              "Login",
-              onPressed: _onClickLogin,
-            ),
+            _showProgress
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : AppButton(
+                    "Login",
+                    onPressed: _onClickLogin,
+                    showProgress: false,
+                  ),
           ],
         ),
       ),
@@ -94,14 +104,24 @@ class _LoginPageState extends State<LoginPage> {
 
     print("login: $login, Senha: $senha");
 
-    bool ok = await LoginApi.login(login, senha);
+    setState(() {
+      _showProgress = true;
+    });
 
-    print('OK -> $ok');
+    ApiResponse response = await LoginApi.login(login, senha);
 
-    if (ok) {
-      push(context, HomePage());
+    if (response.ok) {
+      Usuario user = response.result;
+
+      print(">>> $user");
+
+      push(context, HomePage(), replace: true);
     } else {
-      print('Login incorreto');
+      alert(context, response.msg);
     }
+
+    setState(() {
+      _showProgress = false;
+    });
   }
 }
