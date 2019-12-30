@@ -1,77 +1,64 @@
+import 'package:carros/carro/carros_ListView.dart';
+import 'package:carros/carro/carros_api.dart';
+import 'package:carros/utils/prefs.dart';
 import 'package:flutter/material.dart';
 
 import '../drawer_list.dart';
-import 'carro.dart';
-import 'carros_api.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin<HomePage> {
+  TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _tabController = TabController(length: 3, vsync: this);
+
+    Future<int> future = Prefs.getInt("tavIdx");
+    future.then((int idx) {
+      print("Tab Default > $idx");
+      _tabController.index = idx;
+    });
+
+    _tabController.addListener(() {
+      print("Tab ${_tabController.index}");
+
+      Prefs.setInt("tabIdx", _tabController.index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Carros"),
+        bottom: TabBar(controller: _tabController, tabs: [
+          Tab(
+            text: "Clássicos",
+          ),
+          Tab(
+            text: "Esportivos",
+          ),
+          Tab(
+            text: "Luxo",
+          ),
+        ]),
       ),
-      body: _body(),
+      body: TabBarView(
+        controller: _tabController,
+        children: <Widget>[
+          CarrosListView(TipoCarro.classicos),
+          CarrosListView(TipoCarro.esportivos),
+          CarrosListView(TipoCarro.luxo),
+        ],
+      ),
       drawer: DrawerList(),
-    );
-  }
-
-  _body() {
-    List<Carro> carros = CarrosApi.getCarros();
-
-    return Container(
-      padding: EdgeInsets.all(16),
-      child: ListView.builder(
-        itemCount: carros.length,
-        itemBuilder: (
-          context,
-          index,
-        ) {
-          Carro c = carros[index];
-
-          return Card(
-            color: Colors.grey[100],
-            child: Container(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Center(
-                    child: Image.network(
-                      c.urlFoto,
-                      width: 250,
-                    ),
-                  ),
-                  Text(
-                    c.nome,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 25),
-                  ),
-                  Text(
-                    "descrição...",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  ButtonTheme.bar(
-                    child: ButtonBar(
-                      children: <Widget>[
-                        FlatButton(
-                          child: const Text('BUY TICKETS'),
-                          onPressed: () {/* ... */},
-                        ),
-                        FlatButton(
-                          child: const Text('LISTEN'),
-                          onPressed: () {/* ... */},
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 }
