@@ -26,6 +26,20 @@ class _LoginPageState extends State<LoginPage> {
   bool _showProgress = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    Future<Usuario> future = Usuario.get();
+    future.then((Usuario user) {
+      if (user != null) {
+        setState(() {
+          _tLogin.text = user.login;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
