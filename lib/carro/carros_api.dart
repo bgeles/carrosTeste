@@ -25,7 +25,7 @@ class CarrosApi {
     print(headers);
 
     var url =
-        'https://carros-springboot.herokuapp.com/api/v2/carros/tipo/$tipo';
+        'https://ascarros-springboot.herokuapp.com/api/v2/carros/tipo/$tipo';
 
     print("url ->>>$url");
 

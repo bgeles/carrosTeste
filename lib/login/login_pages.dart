@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:carros/carro/home_page.dart';
+import 'package:carros/login/login_bloc.dart';
 import 'package:carros/login/usuario.dart';
 import 'package:carros/pages/api_response.dart';
 import 'package:carros/utils/alert.dart';
@@ -16,6 +19,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
+
+  final _bloc = LoginBloc();
 
   final _tLogin = TextEditingController();
 
@@ -76,15 +81,15 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(
               height: 20,
             ),
-            _showProgress
-                ? Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : AppButton(
+            StreamBuilder<Object>(
+                stream: _bloc.stream,
+                builder: (context, snapshot) {
+                  return AppButton(
                     "Login",
                     onPressed: _onClickLogin,
-                    showProgress: false,
-                  ),
+                    showProgress: snapshot.data ?? false,
+                  );
+                }),
           ],
         ),
       ),
@@ -118,11 +123,7 @@ class _LoginPageState extends State<LoginPage> {
 
     print("login: $login, Senha: $senha");
 
-    setState(() {
-      _showProgress = true;
-    });
-
-    ApiResponse response = await LoginApi.login(login, senha);
+    ApiResponse response = await _bloc.login(login, senha);
 
     if (response.ok) {
       Usuario user = response.result;
@@ -131,11 +132,14 @@ class _LoginPageState extends State<LoginPage> {
 
       push(context, HomePage(), replace: true);
     } else {
+      print('Recebeu NA LOGIN PAGE RESPONSE.bad');
       alert(context, response.msg);
     }
+  }
 
-    setState(() {
-      _showProgress = false;
-    });
+  @override
+  void dispose() {
+    super.dispose();
+    _bloc.dispose();
   }
 }
