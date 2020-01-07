@@ -13,10 +13,57 @@ class CarroPage extends StatelessWidget {
         title: Text(
           carro.nome,
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.place),
+            onPressed: _onClickMapa(),
+          ),
+          IconButton(
+            icon: Icon(Icons.videocam),
+            onPressed: _onClickVideo(),
+          ),
+          PopupMenuButton<String>(
+            onSelected: (String value) => _onClickPopupMenu(value),
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem(
+                  value: "Editar",
+                  child: Text("Editar"),
+                ),
+                PopupMenuItem(
+                  value: "Deletar",
+                  child: Text("Deletar"),
+                ),
+                PopupMenuItem(
+                  value: "Share",
+                  child: Text("Share"),
+                ),
+              ];
+            },
+          )
+        ],
       ),
       body: _body(),
     );
   }
+
+  _onClickPopupMenu(String value) {
+    switch (value) {
+      case "Editar":
+        print("Editar!!!");
+        break;
+      case "Deletar":
+        print("Deletar!!!");
+        break;
+      case "Share":
+        print("Share!!!");
+        break;
+    }
+  }
+
+  _onClickVideo() => _onClickVideo;
+
+  _onClickMapa() => _onClickMapa;
 
   _body() {
     return Container(
